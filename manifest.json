@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.tmartinppc.vert",
+  "name": "VERT",
+  "version": "1.0.0",
+  "author": "TMartin",
+  "license": "MIT",
+  "description": "Convert files locally with VERT's engines (ImageMagick, FFmpeg, Pandoc) from a bar widget into ~/Downloads.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "VERT",
+    "description": "Drop or pick a file, choose a target format, convert it on-device to ~/Downloads.",
+    "category": "Files",
+    "aliases": ["vert", "convert", "converter"],
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "outputDir": ""
+    },
+    "schema": [
+      {
+        "key": "outputDir",
+        "type": "path",
+        "label": "Output folder",
+        "defaultValue": "",
+        "description": "Folder for converted files. Empty defaults to ~/Downloads."
+      }
+    ]
+  }
+}
