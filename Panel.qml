@@ -115,6 +115,21 @@ Panel {
   function revealOutput() {
     Quickshell.execDetached(["xdg-open", root.outputDir])
   }
+  // Entry point for a dropped file URL (bar icon or panel drop zone).
+  function acceptDrop(url) {
+    root.acceptFile(root.pathFromUrl(url))
+  }
+
+  // Clear everything so the panel is ready for the next conversion.
+  function reset() {
+    root.inputPath = ""
+    root.category = ""
+    root.formatOptions = []
+    root.targetExt = ""
+    root.errorText = ""
+    root.outputPath = ""
+  }
+
 
   // ------------------------------------------------------------------ picker
 
@@ -216,7 +231,7 @@ Panel {
             anchors.fill: parent
             keys: ["text/uri-list"]
             onDropped: function(drop) {
-              if (drop.hasUrls && drop.urls.length > 0) root.acceptFile(root.pathFromUrl(drop.urls[0]))
+              if (drop.hasUrls && drop.urls.length > 0) root.acceptDrop(drop.urls[0])
               drop.accept()
             }
 
@@ -337,6 +352,21 @@ Panel {
               text: "Show folder"
               onClicked: root.revealOutput()
             }
+          }
+        }
+
+        Item {
+          width: parent.width
+          height: resetButton.implicitHeight
+          visible: root.inputPath !== "" && !root.busy
+
+          PanelActionButton {
+            id: resetButton
+            anchors.right: parent.right
+            iconText: "󰑐"
+            tooltipText: "Reset converter"
+            fontFamily: root.fontFamily
+            onClicked: root.reset()
           }
         }
       }
