@@ -58,26 +58,9 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
     text: "󰿺"
-    tooltipText: "Convert a file — or drop a file here"
+    tooltipText: "Convert a file"
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
     }
   }
-
-  // Accept a file dragged onto the bar icon itself. Dropping opens the panel
-  // with the file pre-loaded, so no click is needed to start a conversion.
-  DropArea {
-    id: barDropArea
-    anchors.fill: parent
-    keys: ["text/uri-list"]
-    onDropped: function(drop) {
-      if (drop.hasUrls && drop.urls.length > 0 && panelLoader.item
-          && typeof panelLoader.item.acceptDrop === "function") {
-        panelLoader.item.acceptDrop(drop.urls[0])
-        root.open()
-      }
-      drop.accept()
-    }
-  }
-
 }

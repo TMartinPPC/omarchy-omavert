@@ -6,10 +6,10 @@ import qs.Commons
 import qs.Ui
 import "Formats.js" as Formats
 
-// The VERT converter panel. A file is picked with the desktop-portal chooser
-// or dropped onto the panel, classified by extension, and handed to the
-// engine VERT uses for that family (ImageMagick / FFmpeg / Pandoc) through
-// convert.sh. Results land in ~/Downloads (or the outputDir setting).
+// The VERT converter panel. A file is picked with the desktop-portal chooser,
+// classified by extension, and handed to the engine VERT uses for that
+// family (ImageMagick / FFmpeg / Pandoc) through convert.sh. Results land
+// in ~/Downloads (or the outputDir setting).
 Panel {
   id: root
   moduleName: "io.github.tmartinppc.vert"
@@ -115,11 +115,6 @@ Panel {
   function revealOutput() {
     Quickshell.execDetached(["xdg-open", root.outputDir])
   }
-  // Entry point for a dropped file URL (bar icon or panel drop zone).
-  function acceptDrop(url) {
-    root.acceptFile(root.pathFromUrl(url))
-  }
-
   // Clear everything so the panel is ready for the next conversion.
   function reset() {
     root.inputPath = ""
@@ -217,48 +212,36 @@ Panel {
         }
 
         BorderSurface {
-          id: dropZone
+          id: fileStatus
           width: parent.width
           height: Style.space(72)
           radius: Style.cornerRadius
-          color: dropArea.containsDrag
-            ? Style.hoverFillFor(root.foreground, root.accent)
-            : Style.controlFill(false, false, root.foreground, root.accent)
-          borderSpec: Border.controlSpec(dropArea.containsDrag ? "hover-cursor" : "normal", root.foreground, root.accent)
+          color: Style.controlFill(false, false, root.foreground, root.accent)
+          borderSpec: Border.controlSpec("normal", root.foreground, root.accent)
 
-          DropArea {
-            id: dropArea
-            anchors.fill: parent
-            keys: ["text/uri-list"]
-            onDropped: function(drop) {
-              if (drop.hasUrls && drop.urls.length > 0) root.acceptDrop(drop.urls[0])
-              drop.accept()
+          Column {
+            anchors.centerIn: parent
+            width: parent.width - Style.space(32)
+            spacing: Style.space(2)
+
+            Text {
+              width: parent.width
+              horizontalAlignment: Text.AlignHCenter
+              text: root.inputPath !== "" ? root.basename(root.inputPath) : "No file selected"
+              elide: Text.ElideMiddle
+              color: root.foreground
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.body
             }
 
-            Column {
-              anchors.centerIn: parent
-              width: parent.width - Style.space(32)
-              spacing: Style.space(2)
-
-              Text {
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                text: root.inputPath !== "" ? root.basename(root.inputPath) : "Drop a file here"
-                elide: Text.ElideMiddle
-                color: root.foreground
-                font.family: root.fontFamily
-                font.pixelSize: Style.font.body
-              }
-
-              Text {
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                visible: root.inputPath !== ""
-                text: root.category !== "" ? Formats.categoryLabel(root.category) : "Unsupported type"
-                color: root.dim
-                font.family: root.fontFamily
-                font.pixelSize: Style.font.caption
-              }
+            Text {
+              width: parent.width
+              horizontalAlignment: Text.AlignHCenter
+              visible: root.inputPath !== ""
+              text: root.category !== "" ? Formats.categoryLabel(root.category) : "Unsupported type"
+              color: root.dim
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.caption
             }
           }
         }
@@ -358,7 +341,6 @@ Panel {
         Item {
           width: parent.width
           height: resetButton.implicitHeight
-          visible: root.inputPath !== "" && !root.busy
 
           PanelActionButton {
             id: resetButton
@@ -366,6 +348,7 @@ Panel {
             iconText: "󰑐"
             tooltipText: "Reset converter"
             fontFamily: root.fontFamily
+            enabled: !root.busy
             onClicked: root.reset()
           }
         }
