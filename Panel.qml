@@ -89,6 +89,9 @@ Panel {
   function chooseFile() {
     if (selectProc.running) return
     root.errorText = ""
+    // Hide the panel so the portal chooser isn't rendered behind the layer
+    // overlay; selectProc reopens it when the chooser closes.
+    root.close()
     selectProc.running = false
     selectProc.command = ["omarchy-file-select", "--title", "Choose a file to convert"]
     selectProc.running = true
@@ -117,6 +120,7 @@ Panel {
   }
   // Clear everything so the panel is ready for the next conversion.
   function reset() {
+    if (root.busy) return
     root.inputPath = ""
     root.category = ""
     root.formatOptions = []
@@ -141,6 +145,10 @@ Panel {
           if (p !== "") { root.acceptFile(p); break }
         }
       }
+    }
+    onExited: function(exitCode) {
+      // Reopen after the chooser closes (picked or cancelled).
+      root.open()
     }
   }
 
@@ -211,46 +219,23 @@ Panel {
           fontFamily: root.fontFamily
         }
 
-        BorderSurface {
-          id: fileStatus
-          width: parent.width
-          height: Style.space(72)
-          radius: Style.cornerRadius
-          color: Style.controlFill(false, false, root.foreground, root.accent)
-          borderSpec: Border.controlSpec("normal", root.foreground, root.accent)
-
-          Column {
-            anchors.centerIn: parent
-            width: parent.width - Style.space(32)
-            spacing: Style.space(2)
-
-            Text {
-              width: parent.width
-              horizontalAlignment: Text.AlignHCenter
-              text: root.inputPath !== "" ? root.basename(root.inputPath) : "No file selected"
-              elide: Text.ElideMiddle
-              color: root.foreground
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.body
-            }
-
-            Text {
-              width: parent.width
-              horizontalAlignment: Text.AlignHCenter
-              visible: root.inputPath !== ""
-              text: root.category !== "" ? Formats.categoryLabel(root.category) : "Unsupported type"
-              color: root.dim
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.caption
-            }
-          }
-        }
-
         Button {
           width: parent.width
           bordered: true
           text: root.inputPath !== "" ? "Choose a different file…" : "Choose file…"
           onClicked: root.chooseFile()
+        }
+
+        Text {
+          width: parent.width
+          visible: root.inputPath !== ""
+          text: root.category !== ""
+            ? root.basename(root.inputPath) + " — " + Formats.categoryLabel(root.category)
+            : root.basename(root.inputPath)
+          elide: Text.ElideMiddle
+          color: root.dim
+          font.family: root.fontFamily
+          font.pixelSize: Style.font.caption
         }
 
         PanelSectionHeader {
@@ -342,13 +327,14 @@ Panel {
           width: parent.width
           height: resetButton.implicitHeight
 
-          PanelActionButton {
+          Button {
             id: resetButton
             anchors.right: parent.right
             iconText: "󰑐"
-            tooltipText: "Reset converter"
+            text: "Reset"
+            tooltipText: "Clear the file and start over"
             fontFamily: root.fontFamily
-            enabled: !root.busy
+            bordered: true
             onClicked: root.reset()
           }
         }
