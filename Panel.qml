@@ -323,20 +323,15 @@ Panel {
           }
         }
 
-        Item {
+        Button {
+          id: resetButton
           width: parent.width
-          height: resetButton.implicitHeight
-
-          Button {
-            id: resetButton
-            anchors.right: parent.right
-            iconText: "󰑐"
-            text: "Reset"
-            tooltipText: "Clear the file and start over"
-            fontFamily: root.fontFamily
-            bordered: true
-            onClicked: root.reset()
-          }
+          iconText: "󰑐"
+          text: "Reset"
+          tooltipText: "Clear the file and start over"
+          fontFamily: root.fontFamily
+          bordered: true
+          onClicked: root.reset()
         }
       }
     }
