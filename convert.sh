@@ -39,6 +39,18 @@ command -v "$engine" >/dev/null 2>&1 || {
   exit 3
 }
 
+# Network quarantine: engines process untrusted local files, and each engine
+# can reach the network (ImageMagick http/https delegates + SVG references,
+# FFmpeg http/https/hls protocols, Pandoc remote resources). Run every engine
+# under a user+network namespace so no conversion can make a network request;
+# fail closed if the sandbox cannot be provisioned.
+if unshare --user --map-current-user --net true 2>/dev/null; then
+  :
+else
+  echo "convert.sh: network sandbox (unshare) unavailable; refusing to convert" >&2
+  exit 4
+fi
+
 mkdir -p "$outdir" || { echo "convert.sh: cannot create $outdir" >&2; exit 2; }
 
 base="$(basename "$input")"
@@ -54,9 +66,9 @@ done
 
 err="$(mktemp)"
 case "$engine" in
-  magick) magick "$input" "$output" 2>"$err" ;;
-  ffmpeg) ffmpeg -nostdin -y -hide_banner -loglevel error -i "$input" "$output" 2>"$err" ;;
-  pandoc) pandoc "$input" --output "$output" 2>"$err" ;;
+  magick) unshare --user --map-current-user --net -- magick "$input" "$output" 2>"$err" ;;
+  ffmpeg) unshare --user --map-current-user --net -- ffmpeg -nostdin -y -hide_banner -loglevel error -i "$input" "$output" 2>"$err" ;;
+  pandoc) unshare --user --map-current-user --net -- pandoc "$input" --output "$output" 2>"$err" ;;
 esac
 rc=$?
 

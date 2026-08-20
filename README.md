@@ -7,6 +7,14 @@ Inspired by [VERT](https://github.com/VERT-sh/vert) and built on the same
 fully-local conversion engines it uses: ImageMagick (images), FFmpeg
 (audio/video), and Pandoc (documents). OmaVERT shares no code with VERT.
 
+## Privacy
+
+Conversions are fully local. Every engine runs inside a network-isolated
+namespace (`unshare --user --map-current-user --net`), so even crafted input —
+an SVG referencing a remote image, a Pandoc document with remote resources, or
+an FFmpeg playlist — cannot make an outbound network request. Files are read
+and written only on the device, with your own user permissions.
+
 ## Install
 
 ```sh
