@@ -4,12 +4,7 @@ A local file converter for the Omarchy Quattro bar. Pick a file, choose a
 target format, and it's converted on-device into `~/Downloads` — no cloud.
 
 Built on the same conversion engines as [VERT](https://github.com/VERT-sh/vert):
-
-| Family       | Engine       |
-|--------------|--------------|
-| Images       | ImageMagick  |
-| Audio, video | FFmpeg       |
-| Documents    | Pandoc       |
+ImageMagick (images), FFmpeg (audio/video), and Pandoc (documents).
 
 ## Install
 
@@ -23,21 +18,54 @@ Click the OmaVERT icon in the bar to open the panel:
 
 1. Press **Choose file…** to pick a file (the panel hides while the chooser is
    open, then reopens with the file loaded).
-2. Choose a target format from the dropdown (the options follow the file type).
+2. Choose a target format from the dropdown (options follow the file type).
 3. Press **Convert**. The result lands in `~/Downloads/<name>.<ext>`, with a
    numeric suffix when a file of that name already exists.
 
 Press **Reset** to clear the selection, or **Escape** to close the panel.
 
-## Requirements
+## Dependencies
 
-Omarchy ships ImageMagick and FFmpeg. Document conversion needs Pandoc, and
-Pandoc's PDF output needs a LaTeX engine:
+Each conversion type uses a different engine. Install what you need:
+
+| What you convert   | Engine          | Package(s)      |
+|--------------------|-----------------|-----------------|
+| **Images**         | ImageMagick     | `imagemagick`   |
+| **Audio**          | FFmpeg          | `ffmpeg`        |
+| **Video**          | FFmpeg          | `ffmpeg`        |
+| **Documents**      | Pandoc          | `pandoc`        |
+
+Omarchy ships `imagemagick` and `ffmpeg` by default. Document conversion is
+optional — install Pandoc only if you convert documents:
 
 ```sh
 omarchy pkg add pandoc
-# PDF output also needs one of:
-omarchy pkg add tectonic   # or: omarchy pkg add texlive
+```
+
+### Optional image delegates
+
+A few image formats need an extra ImageMagick delegate. Install only the ones
+for the formats you actually use:
+
+| Format                  | Delegate package |
+|-------------------------|------------------|
+| SVG                     | `librsvg`        |
+| HEIC / HEIF / AVIF      | `libheif`        |
+| JPEG XL (JXL)           | `libjxl`         |
+| PDF (from an image)     | `ghostscript`    |
+
+```sh
+omarchy pkg add librsvg libheif libjxl ghostscript
+```
+
+### PDF output from documents
+
+Pandoc renders PDF through a LaTeX engine. Install one:
+
+```sh
+omarchy pkg add tectonic       # single self-contained binary (recommended)
+# or, the full toolchain:
+omarchy pkg add texlive-core   # provides pdflatex
 ```
 
 ## Configure
