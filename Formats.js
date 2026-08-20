@@ -1,4 +1,4 @@
-// Format catalogue for the VERT bar widget.
+// Format catalogue for the OmaVERT bar widget.
 //
 // VERT (https://github.com/VERT-sh/vert) converts everything on-device with
 // three engines: ImageMagick for images, FFmpeg for audio/video, and Pandoc

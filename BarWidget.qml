@@ -3,12 +3,12 @@ import Quickshell
 import Quickshell.Io
 import qs.Ui
 
-// Bar icon for the VERT converter. The conversion flow lives in Panel.qml;
+// Bar icon for the OmaVERT converter. The conversion flow lives in Panel.qml;
 // this shell routes open/close/toggle to it and mirrors the contract the bar
 // relies on for panel widgets (open/close/opened, popout switching).
 BarWidget {
   id: root
-  moduleName: "io.github.tmartinppc.vert"
+  moduleName: "io.github.tmartinppc.omavert"
 
   readonly property bool opened: panelLoader.item ? panelLoader.item.opened === true : false
   readonly property bool popoutSwitchClosing: panelLoader.item ? panelLoader.item.popoutSwitchClosing === true : false

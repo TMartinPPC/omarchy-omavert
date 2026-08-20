@@ -6,13 +6,13 @@ import qs.Commons
 import qs.Ui
 import "Formats.js" as Formats
 
-// The VERT converter panel. A file is picked with the desktop-portal chooser,
+// The OmaVERT converter panel. A file is picked with the desktop-portal chooser,
 // classified by extension, and handed to the engine VERT uses for that
 // family (ImageMagick / FFmpeg / Pandoc) through convert.sh. Results land
 // in ~/Downloads (or the outputDir setting).
 Panel {
   id: root
-  moduleName: "io.github.tmartinppc.vert"
+  moduleName: "io.github.tmartinppc.omavert"
   manageIpc: false
 
   property var anchorItem: null
@@ -197,7 +197,7 @@ Panel {
 
         PanelHero {
           width: parent.width
-          title: "VERT"
+          title: "OmaVERT"
           meta: root.category !== ""
             ? Formats.categoryLabel(root.category) + " converter"
             : "local file converter"

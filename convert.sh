@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# VERT bar widget — local conversion backend.
+# OmaVERT bar widget — local conversion backend.
 #
 # Runs one of the engines VERT itself uses under the hood:
 #   ImageMagick            -> images

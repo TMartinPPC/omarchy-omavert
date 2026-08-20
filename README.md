@@ -1,4 +1,4 @@
-# VERT
+# OmaVERT
 
 A local file converter for the Omarchy Quattro bar. Pick a file, choose a
 target format, and it's converted on-device into `~/Downloads` — no cloud.
@@ -14,12 +14,12 @@ Built on the same conversion engines as [VERT](https://github.com/VERT-sh/vert):
 ## Install
 
 ```sh
-omarchy plugin add https://github.com/TMartinPPC/omarchy-vert.git --enable
+omarchy plugin add https://github.com/TMartinPPC/omarchy-omavert.git --enable
 ```
 
 ## Usage
 
-Click the VERT icon in the bar to open the panel:
+Click the OmaVERT icon in the bar to open the panel:
 
 1. Press **Choose file…** to pick a file (the panel hides while the chooser is
    open, then reopens with the file loaded).
@@ -47,13 +47,13 @@ field to this widget's entry in the `bar.layout` section of
 `~/.config/omarchy/shell.json`:
 
 ```json
-{ "id": "io.github.tmartinppc.vert", "outputDir": "/path/to/folder" }
+{ "id": "io.github.tmartinppc.omavert", "outputDir": "/path/to/folder" }
 ```
 
 The bar icon can be moved like any widget:
 
 ```sh
-omarchy bar move io.github.tmartinppc.vert --section right
+omarchy bar move io.github.tmartinppc.omavert --section right
 ```
 
 To float the file-chooser dialog as a centered window instead of a tiled one,
@@ -70,7 +70,7 @@ hl.window_rule({
 ## Remove
 
 ```sh
-omarchy plugin remove io.github.tmartinppc.vert
+omarchy plugin remove io.github.tmartinppc.omavert
 ```
 
 ## License

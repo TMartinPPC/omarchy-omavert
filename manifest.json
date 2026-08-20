@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "io.github.tmartinppc.vert",
-  "name": "VERT",
+  "id": "io.github.tmartinppc.omavert",
+  "name": "OmaVERT",
   "version": "1.0.0",
   "author": "TMartin",
   "license": "MIT",
@@ -11,10 +11,10 @@
     "barWidget": "BarWidget.qml"
   },
   "barWidget": {
-    "displayName": "VERT",
-    "description": "Drop or pick a file, choose a target format, convert it on-device to ~/Downloads.",
+    "displayName": "OmaVERT",
+    "description": "Pick a file, choose a target format, and convert it on-device to ~/Downloads.",
     "category": "Files",
-    "aliases": ["vert", "convert", "converter"],
+    "aliases": ["omavert", "vert", "convert", "converter"],
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
