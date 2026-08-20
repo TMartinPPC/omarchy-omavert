@@ -232,6 +232,7 @@ Panel {
           text: root.category !== ""
             ? root.basename(root.inputPath) + " — " + Formats.categoryLabel(root.category)
             : root.basename(root.inputPath)
+          textFormat: Text.PlainText
           elide: Text.ElideMiddle
           color: root.dim
           font.family: root.fontFamily
@@ -279,6 +280,7 @@ Panel {
           width: parent.width
           visible: root.errorText !== ""
           text: root.errorText
+          textFormat: Text.PlainText
           color: root.urgent
           font.family: root.fontFamily
           font.pixelSize: Style.font.body
@@ -300,6 +302,7 @@ Panel {
           Text {
             width: parent.width
             text: root.outputPath
+            textFormat: Text.PlainText
             color: root.foreground
             font.family: root.fontFamily
             font.pixelSize: Style.font.body
