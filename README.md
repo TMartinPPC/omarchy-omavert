@@ -3,8 +3,9 @@
 A local file converter for the Omarchy Quattro bar. Pick a file, choose a
 target format, and it's converted on-device into `~/Downloads` — no cloud.
 
-Built on the same conversion engines as [VERT](https://github.com/VERT-sh/vert):
-ImageMagick (images), FFmpeg (audio/video), and Pandoc (documents).
+Inspired by [VERT](https://github.com/VERT-sh/vert) and built on the same
+fully-local conversion engines it uses: ImageMagick (images), FFmpeg
+(audio/video), and Pandoc (documents). OmaVERT shares no code with VERT.
 
 ## Install
 
@@ -100,6 +101,14 @@ hl.window_rule({
 ```sh
 omarchy plugin remove io.github.tmartinppc.omavert
 ```
+
+## Credits
+
+OmaVERT is inspired by [VERT](https://github.com/VERT-sh/vert), a fully-local
+file converter by the VERT project. It uses the same underlying conversion
+engines — [ImageMagick](https://imagemagick.org/),
+[FFmpeg](https://ffmpeg.org/), and [Pandoc](https://pandoc.org/) — but
+includes none of VERT's source code.
 
 ## License
 
