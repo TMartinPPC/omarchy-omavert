@@ -39,17 +39,28 @@ command -v "$engine" >/dev/null 2>&1 || {
   exit 3
 }
 
-# Network quarantine: engines process untrusted local files, and each engine
-# can reach the network (ImageMagick http/https delegates + SVG references,
-# FFmpeg http/https/hls protocols, Pandoc remote resources). Run every engine
-# under a user+network namespace so no conversion can make a network request;
-# fail closed if the sandbox cannot be provisioned.
-if unshare --user --map-current-user --net true 2>/dev/null; then
+# Sandbox: run each engine in a network-isolated, filesystem-restricted
+# namespace (bubblewrap). The engine sees a read-only system, a private /tmp,
+# no /home (user data), and only the input file (read-only) plus the output
+# directory (read-write). A crafted document therefore can neither fetch remote
+# resources nor read unrelated local files, so the fully-local/no-network claim
+# holds. Fail closed if the sandbox cannot be provisioned.
+if command -v bwrap >/dev/null 2>&1 && bwrap --unshare-all --ro-bind / / --dev /dev --proc /proc --tmpfs /tmp true 2>/dev/null; then
   :
 else
-  echo "convert.sh: network sandbox (unshare) unavailable; refusing to convert" >&2
+  echo "convert.sh: sandbox (bubblewrap) unavailable; refusing to convert" >&2
   exit 4
 fi
+
+# Run a command inside the sandbox; the input file is re-exposed read-only and
+# the output directory read-write (the rest of the user's home stays hidden).
+run_sandboxed() {
+  bwrap --unshare-all --die-with-parent \
+    --ro-bind / / --dev /dev --proc /proc \
+    --tmpfs /tmp --tmpfs /home --tmpfs /root --tmpfs /run --tmpfs /mnt --tmpfs /media \
+    --ro-bind "$input" "$input" --bind "$outdir" "$outdir" \
+    -- "$@"
+}
 
 mkdir -p "$outdir" || { echo "convert.sh: cannot create $outdir" >&2; exit 2; }
 
@@ -66,9 +77,9 @@ done
 
 err="$(mktemp)"
 case "$engine" in
-  magick) unshare --user --map-current-user --net -- magick "$input" "$output" 2>"$err" ;;
-  ffmpeg) unshare --user --map-current-user --net -- ffmpeg -nostdin -y -hide_banner -loglevel error -i "$input" "$output" 2>"$err" ;;
-  pandoc) unshare --user --map-current-user --net -- pandoc "$input" --output "$output" 2>"$err" ;;
+  magick) run_sandboxed magick "$input" "$output" 2>"$err" ;;
+  ffmpeg) run_sandboxed ffmpeg -nostdin -y -hide_banner -loglevel error -i "$input" "$output" 2>"$err" ;;
+  pandoc) run_sandboxed pandoc "$input" --output "$output" 2>"$err" ;;
 esac
 rc=$?
 

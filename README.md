@@ -9,11 +9,14 @@ fully-local conversion engines it uses: ImageMagick (images), FFmpeg
 
 ## Privacy
 
-Conversions are fully local. Every engine runs inside a network-isolated
-namespace (`unshare --user --map-current-user --net`), so even crafted input —
-an SVG referencing a remote image, a Pandoc document with remote resources, or
-an FFmpeg playlist — cannot make an outbound network request. Files are read
-and written only on the device, with your own user permissions.
+Conversions are fully local and sandboxed. Every engine runs inside a
+bubblewrap sandbox (`bwrap --unshare-all`) with no network and a restricted
+filesystem: the engine sees a read-only system, a private `/tmp`, and only the
+input file (read-only) plus the output directory (read-write) — the rest of
+your home directory stays hidden. Crafted input (an SVG referencing a remote
+image, a Pandoc document with remote resources or `\input` includes, an FFmpeg
+playlist) can therefore neither make an outbound network request nor read
+unrelated local files.
 
 ## Install
 
@@ -44,8 +47,8 @@ Each conversion type uses a different engine. Install what you need:
 | **Video**          | FFmpeg          | `ffmpeg`        |
 | **Documents**      | Pandoc          | `pandoc`        |
 
-Omarchy ships `imagemagick` and `ffmpeg` by default. Document conversion is
-optional — install Pandoc only if you convert documents:
+Omarchy ships `imagemagick`, `ffmpeg`, and `bubblewrap` by default. Document
+conversion is optional — install Pandoc only if you convert documents:
 
 ```sh
 omarchy pkg add pandoc
