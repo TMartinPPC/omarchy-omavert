@@ -12,11 +12,12 @@ fully-local conversion engines it uses: ImageMagick (images), FFmpeg
 Conversions are fully local and sandboxed. Every engine runs inside a
 bubblewrap sandbox (`bwrap --unshare-all`) with no network and a restricted
 filesystem: the engine sees a read-only system, a private `/tmp`, and only the
-input file (read-only) plus the output directory (read-write) — the rest of
-your home directory stays hidden. Crafted input (an SVG referencing a remote
-image, a Pandoc document with remote resources or `\input` includes, an FFmpeg
-playlist) can therefore neither make an outbound network request nor read
-unrelated local files.
+input file (read-only) plus a private, empty work directory (read-write). The
+result is moved into `~/Downloads` by the parent after the engine exits, so the
+engine never sees other files in the output directory. Crafted input (an SVG
+referencing a remote image, a Pandoc document with remote resources or
+`\input` includes, an FFmpeg playlist) can therefore neither make an outbound
+network request nor read unrelated local files.
 
 ## Install
 

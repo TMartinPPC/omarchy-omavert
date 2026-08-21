@@ -41,8 +41,8 @@ command -v "$engine" >/dev/null 2>&1 || {
 
 # Sandbox: run each engine in a network-isolated, filesystem-restricted
 # namespace (bubblewrap). The engine sees a read-only system, a private /tmp,
-# no /home (user data), and only the input file (read-only) plus the output
-# directory (read-write). A crafted document therefore can neither fetch remote
+# no /home (user data), and only the input file (read-only) plus a private
+# work directory (read-write). A crafted document therefore can neither fetch
 # resources nor read unrelated local files, so the fully-local/no-network claim
 # holds. Fail closed if the sandbox cannot be provisioned.
 if command -v bwrap >/dev/null 2>&1 && bwrap --unshare-all --ro-bind / / --dev /dev --proc /proc --tmpfs /tmp true 2>/dev/null; then
@@ -53,12 +53,12 @@ else
 fi
 
 # Run a command inside the sandbox; the input file is re-exposed read-only and
-# the output directory read-write (the rest of the user's home stays hidden).
+# the private work directory read-write (everything else in /home stays hidden).
 run_sandboxed() {
   bwrap --unshare-all --die-with-parent \
     --ro-bind / / --dev /dev --proc /proc \
     --tmpfs /tmp --tmpfs /home --tmpfs /root --tmpfs /run --tmpfs /mnt --tmpfs /media \
-    --ro-bind "$input" "$input" --bind "$outdir" "$outdir" \
+    --ro-bind "$input" "$input" --bind "$workdir" "$workdir" \
     -- "$@"
 }
 
@@ -75,11 +75,14 @@ while [[ -e "$output" ]]; do
   i=$((i + 1))
 done
 
+workdir="$(mktemp -d)"
+trap 'rm -rf "$workdir"' EXIT
+
 err="$(mktemp)"
 case "$engine" in
-  magick) run_sandboxed magick "$input" "$output" 2>"$err" ;;
-  ffmpeg) run_sandboxed ffmpeg -nostdin -y -hide_banner -loglevel error -i "$input" "$output" 2>"$err" ;;
-  pandoc) run_sandboxed pandoc "$input" --output "$output" 2>"$err" ;;
+  magick) run_sandboxed magick "$input" "$workdir/result.$ext" 2>"$err" ;;
+  ffmpeg) run_sandboxed ffmpeg -nostdin -y -hide_banner -loglevel error -i "$input" "$workdir/result.$ext" 2>"$err" ;;
+  pandoc) run_sandboxed pandoc "$input" --output "$workdir/result.$ext" 2>"$err" ;;
 esac
 rc=$?
 
@@ -91,5 +94,6 @@ if [[ $rc -ne 0 ]]; then
 fi
 
 rm -f "$err"
+mv -n "$workdir/result.$ext" "$output" || { echo "convert.sh: failed to place result" >&2; exit 1; }
 echo "$output"
 exit 0
