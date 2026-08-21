@@ -40,24 +40,40 @@ command -v "$engine" >/dev/null 2>&1 || {
 }
 
 # Sandbox: run each engine in a network-isolated, filesystem-restricted
-# namespace (bubblewrap). The engine sees a read-only system, a private /tmp,
-# no /home (user data), and only the input file (read-only) plus a private
-# work directory (read-write). A crafted document therefore can neither fetch
-# resources nor read unrelated local files, so the fully-local/no-network claim
-# holds. Fail closed if the sandbox cannot be provisioned.
-if command -v bwrap >/dev/null 2>&1 && bwrap --unshare-all --ro-bind / / --dev /dev --proc /proc --tmpfs /tmp true 2>/dev/null; then
+# namespace (bubblewrap). The engine gets an allow-list, not the host root:
+# read-only /usr (plus the usr-merge root symlinks), the dynamic-loader cache,
+# and a handful of config paths that actually exist; /dev and /proc; a private
+# /tmp. Everything else — the rest of /etc, /var, /opt, /home, /etc/machine-id,
+# the user's data — is absent, along with the input file (read-only) and a
+# private empty work directory (read-write). A crafted document can neither
+# fetch remote resources nor read unrelated host files. Fail closed if the
+# sandbox cannot be provisioned.
+ro_binds=()
+for p in /etc/ld.so.cache /etc/fonts /etc/ImageMagick-7 /etc/localtime; do
+  [ -e "$p" ] && ro_binds+=(--ro-bind "$p" "$p")
+done
+
+if command -v bwrap >/dev/null 2>&1 \
+    && bwrap --unshare-all --die-with-parent \
+       --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/bin /sbin \
+       --symlink usr/lib /lib --symlink usr/lib /lib64 \
+       "${ro_binds[@]}" \
+       --dev /dev --proc /proc --tmpfs /tmp \
+       -- true 2>/dev/null; then
   :
 else
   echo "convert.sh: sandbox (bubblewrap) unavailable; refusing to convert" >&2
   exit 4
 fi
 
-# Run a command inside the sandbox; the input file is re-exposed read-only and
-# the private work directory read-write (everything else in /home stays hidden).
+# Run a command inside the allow-list sandbox; the input file is re-exposed
+# read-only and the private work directory read-write.
 run_sandboxed() {
   bwrap --unshare-all --die-with-parent \
-    --ro-bind / / --dev /dev --proc /proc \
-    --tmpfs /tmp --tmpfs /home --tmpfs /root --tmpfs /run --tmpfs /mnt --tmpfs /media \
+    --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/bin /sbin \
+    --symlink usr/lib /lib --symlink usr/lib /lib64 \
+    "${ro_binds[@]}" \
+    --dev /dev --proc /proc --tmpfs /tmp \
     --ro-bind "$input" "$input" --bind "$workdir" "$workdir" \
     -- "$@"
 }
