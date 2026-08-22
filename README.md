@@ -73,13 +73,9 @@ omarchy pkg add librsvg libheif libjxl ghostscript
 
 ### PDF output from documents
 
-Pandoc renders PDF through a LaTeX engine. Install one:
-
-```sh
-omarchy pkg add tectonic       # single self-contained binary (recommended)
-# or, the full toolchain:
-omarchy pkg add texlive-core   # provides pdflatex
-```
+Pandoc renders PDF through a LaTeX engine (install `texlive-core`, which
+provides `pdflatex`). Note the conversion sandbox has no network access, so
+engines that fetch packages on demand won't work — use a fully local toolchain.
 
 ## Configure
 
